@@ -1,0 +1,555 @@
+
+
+servlet is able to display output as 
+		text/html
+
+	out.print("<form>");
+
+
+
+Session management:
+	client side:
+		Hidden form fields
+		URL re-writing (Query string)			?key1=value1&key2=value2&key3=value3
+		Cookies
+
+	server side:
+		HttpSession
+		ServletContext
+
+imagine if you are entering the data during Signup	(ex: create account in gmail)
+	you enter 
+		first name
+		last name
+		date of birth
+		choose country			(this caused a refresh to fill the states related to the country)
+
+	Now, you found that because of refresh, all other details you entered have vanished
+
+
+Problem:
+	across round trip, the information are not kept persistent
+	when a form is submitted to server, the servlet redirect to the same form, we are seeing a new form
+	
+The ability to retain or remember some information across round trip is called as Session management
+
+Difference between 
+	HttpSession		(session)
+	ServletContext		(application)
+
+
+Facebook is an application
+	You are user #123
+
+	if another user logs in, he will be #124
+
+	in which scope of the application, we need to keep this variable?
+
+	this variable is common to any session. (across session, same variable)
+	So the scope of the variable should be 
+			Application scope
+
+	what is application?		ServletContext is the object representation of application
+
+	if you store this variable in servlet context, it is same for different sessions.
+
+What is different session?
+	now a days, if i login to facebook using chrome, then in any new chrome i am found logged in only
+
+	setAttribute
+	getAttribute
+
+---------------------------
+Same example lets see in session scope
+
+When a login is successful,
+	how we declare it success?
+	we get user id and password from user
+	if a row is found in the user master table for the given uid and pwd
+	then login is successful.
+
+	we obtain a row means, in java, we obtain an object of User class
+
+	that user object itself should be stored in the Session
+
+	user object
+		uid
+		pwd
+		firstName
+		lastName
+		role		(admin/user)
+
+	so in every page, we can check 
+		if the user object is found in the session scope or not.
+		if user object is not found, (means, session.getAttribute("user")==null)
+			inform them "you have not logged in. click here to login"
+
+	if(!user.getRole().equals("admin"))				//not an admin
+	{
+		//you are not authorized to visit this page...
+		return;				//this prevents from loading remaining of page
+	}
+
+	signout servlet:
+	------------------
+	session.invalidate();			//this destroys the session (all attributes are erased)
+	out.print("You are logged out. Click here to go to login page");
+
+	
+-----------------------------
+If We do lot of java code, and little bit of HTML, we choose Servlets
+
+If we do lot of HTML code, and little bit of Java, we choose JSP
+
+jsp AND servlet 		BOTH are same
+
+a JSP page is translated into Servlet before runtime
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+the above code is called as "page directive"	(there are only 3 types of directives in jsp. i) page ii) include iii) taglib)
+
+there can be any number  of page directives in your jsp code. 
+
+what happens when a jsp page is executed;
+	1) JSP translated into servlet java code
+	2) servlet is compiled to produce class file
+	3) if we get compilation errors while compiling this, the exception is called as
+		JasperException
+
+
+index.jsp
+	is translated into 
+		index_jsp.java
+	and after compilation
+		index_jsp.class
+
+----------------------------------
+we can embed java code inside a JSP page
+	scriplets	<% %>		we can write any java code inside scriplet
+
+In JSP,
+	there are implicit objects
+
+	1) out				PrintWriter out
+	2) request			HttpServletRequest
+	3) response			HttpServletResponse
+	4) session			HttpSession			
+	5) application			ServletContext
+	6) page
+	7) exception
+
+
+1) scriplet		<%	%>
+2) expressions		<%=	%>			
+3) declaration		<%!	%>
+4) directive		<%@	%>
+
+
+demo:
+	create a jsp page to accept the user name and password from user.
+	on clicking the login button, the user name and passwords are validated as:
+		same user name and password means login failed
+	else
+		success
+
+	both messages to be displayed in the same login page 
+
+	In case of login failure, display the user name again in the text box
+
+
+Task:
+------
+	Create a signup form using jsp
+	on submit, the servlet should display a success message
+
+	all the data entered in the jsp page should be available when the success message is displayed in JSP
+
+
+
+Demo:
+-----
+	Create an associate jsp page that allows ALL CRUD operations
+	Also
+		Display the existing associates as a table
+
+<table class="table table-striped table-bordered table-hover ">
+				<thead>
+					<th>Associate Id</th>
+					<th>First Name</th>
+					<th>Last Name</th>
+					<th>Date of Joining</th>
+					<th>Gender</th>
+					<th>Picture</th>
+				</thead>
+		<%
+				AssociateDaoImpl adao = new AssociateDaoImpl();
+				List<Associate> associateList = adao.read();
+				
+				for (Associate a : associateList) 
+				{
+		%>
+					<tr>
+						<td><%=a.getAssociateId() %></td>
+						<td><%=a.getFirstName() %></td>
+						<td><%=a.getLastName() %></td>
+						<td><%=a.getDateOfJoining() %></td>
+						<td><%=a.getGender() %></td>
+						<td><%="under construction" %></td>
+					</tr>
+		<%
+				}
+		%>
+			</table>
+
+
+
+
+
+
+
+to write java code in a JSP file
+
+<%
+	for(int i=0;i<10;i++)
+	{
+		out.print("<li>"+i+"</li>);
+	}
+%>
+Task:
+-------
+	for the entity and dao we have created,
+	create the form to 
+		add/ modify/ delete
+	display the records as table below the form
+
+	use multiple submit buttons with same name and use switch case in servlet
+
+
+JSP:			Java Server Pages
+-----------
+	Life cycle of JSP
+
+	1) Translation Phase
+	2) Compilation Phase
+	after this, it is a servlet.	(The life cycle of servlet)
+
+
+when does the service method is called?
+
+1)	<form action="abcd.jsp">			
+2) 	http://localhost:8080/projectname/something.jsp
+3) 	response.sendRedirect("abcd.jsp");
+4) 	when we refresh jsp page
+
+
+1) scriplets			<%	%>
+2) expression			<%=	%>
+3) declaration			<%!	%>
+4) directives			<%@	%>
+5) action			<jsp:
+
+	<jsp:include
+	<jsp:forward
+
+these tags are defined in JSP language itself
+
+In JSP,
+	there are implicit objects
+
+	1) out				PrintWriter out
+	2) request			HttpServletRequest
+	3) response			HttpServletResponse
+	4) session			HttpSession			
+	5) application			ServletContext
+	6) page
+	7) exception
+
+we dont need to declare these objects. They are readymade. 
+
+	out.print();			//out is implicit object, so we do not need to declare it as PrintWriter out
+
+
+what is action in JSP?
+	they are custom tags defined in JSP language
+
+
+It is possible to create portions of the page as segments and include them in a single page
+
+
+<jsp:include page="login.jsp" /
+
+
+
+we create 
+	header.jsp
+	footer.jsp
+	menu.jsp
+	login.jsp
+	signup.jsp
+	
+
+these are all "segments"
+	they do not have top elements like	HTML, HEAD, BODY, etc
+
+they can be pulled from a home page using jsp action tag "include"
+
+
+--------------------
+Expression Language		EL
+
+<%=	%>			we call it as "Expressions"
+
+wherever we display output in jsp, we can use expression language. EL
+EL is only for display purpose
+
+
+${}			EL		our expressions are coded inside ${}
+
+${ 10+10 }		20
+
+in servlet:
+request.getParameter("username")			
+
+in EL:
+${param.username}
+
+
+User Name: <input type=text name="username" value="${param.username }" /><br/>
+
+${param.username}	is translated into 	request.getParameter("username");
+
+yesterday, we saw how to retrieve a cookie using
+	Cookie []cookies=request.getCookies();
+	for(Cookie c : cookies)
+	{
+		if(c.getName().equals("uid"))
+			out.print(c.getValue());
+	}
+
+
+this can be done using EL:
+	${cookie.uid.value}
+
+
+what is custom tag?
+	any tag which is not defined in HTML is a custom tag
+
+	jsp action tags are also custom tags, but they are available in jsp without any need to import a library
+
+
+we create our own tags
+	we define a tag and 
+	in response to that tag, a java code should execute	(and may produce output)
+
+<b>
+<i>
+<u>
+there is no tag like below:
+<upper>
+<lower>
+but we can create
+
+they are called custom tags
+
+1) simple tag
+2) body tag
+3) simple or body tag with attributes		<a href=		href is the attribute
+
+Simple tag
+----------
+1) Tag Handler			java program
+2) TLD file			Tag Library Descriptor	is an XML file where we 
+				define the 
+					name of the tag
+					tag handler
+					type of tag
+
+3) in jsp file
+		we use the tag by declaring in <%@taglib 			directive
+
+These 3 steps we are creating a tag called
+
+<copyright />
+
+wherever we put this tag, a copyright message should be displayed
+
+a class that extends SimpleTagSupport 
+------------------
+package mytag;
+
+import java.io.IOException;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspWriter;
+import javax.servlet.jsp.tagext.SimpleTagSupport;
+
+public class CopyrightTag extends SimpleTagSupport
+{
+
+	@Override
+	public void doTag() throws JspException, IOException {
+		//get reference to jsp writer and print a message
+		//out is an implicit object in JSP only 	not here
+		JspWriter out = getJspContext().getOut();
+		out.print("Copyright: This product is protected....");
+	}
+	
+}
+
+
+------------------
+TLD file		is a XML file
+-----------------
+<?xml version="1.0" encoding="ISO-8859-1" ?>  
+<!DOCTYPE taglib  
+        PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"  
+    "http://java.sun.com/j2ee/dtd/web-jsptaglibrary_1_2.dtd">
+
+<taglib>
+
+	<tlib-version>1.0</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>simple</short-name>
+	<uri>http://tomcat.apache.org/example-taglib</uri>
+
+   <tag>
+		<name>copyright</name>
+		<tag-class>mytag.CopyrightTag</tag-class>
+		<body-content>empty</body-content>
+	</tag>
+</taglib>  
+--------------use the tag in jsp file using taglib directive
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<%@taglib uri="WEB-INF/jag.tld" prefix="jag" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<jag:copyright/>
+</body>
+</html>
+
+----------------------------------------------------------
+
+Task:
+	create a customer tag "welcome"
+	whenever we put this tag in jsp file, there, it should display a welcome message
+
+Task:
+	create a custom tag "upper"
+	this is a body tag that converts the body content into UPPER case
+
+
+
+	<tag>
+		<name>upper</name>
+		<tag-class>mytag.UpperTag</tag-class>
+		<body-content>scriptless</body-content>
+	</tag>
+
+package mytag;
+public class UpperTag extends BodyTagSupport
+{
+	@Override
+	public int doEndTag() throws JspException {
+		//get body content
+		//get jsp write
+		String bc=getBodyContent().getString();
+		JspWriter out = getBodyContent().getEnclosingWriter();
+		try {
+			out.print(bc.toUpperCase());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return super.doEndTag();
+	}	
+}
+
+
+How to allow users to set attributes to our custom tag?
+1) TLD file
+			<attribute>
+			<name>color</name>
+			<required>false</required>
+		</attribute>
+place these code inside <tag>
+
+2) create an instance variable in the name of attribute
+3) generate getter/setter/both
+4) in tag hander method, manipulate the output using attribute value
+		String bc=getBodyContent().getString();
+		JspWriter out = getBodyContent().getEnclosingWriter();
+		String output=bc.toUpperCase();
+		output="<font color="+getColor()+">"+output+"</font>";
+	
+5) in jsp, use attribute in line with tag
+
+
+
+We aim to bring all code in jsp into markup code
+we do not want to see java code in JSP
+
+because, it is like double negative
+
+using scriplet in jsp is allowed. But is considered as not professional
+
+we need to reduce the use of scriplet
+
+--------------------------------------------------------------------------
+JSTL		-	JSP Standard Tag Library
+
+lot of custom tags are already created and we are going to use them
+
+1) tld	
+2) where are the java "tag handler" classes????	(they are in jar file)
+
+so we need to put jar file in "web-inf/lib" folder
+
+JSTL 1.1 OR 1.2?		We use 1.2 version
+
+
+
+in JSTL
+	core
+	html
+	sql
+
+these are categories of JSTL 
+
+core is used for core java programming constructs
+
+	declare variables and assign values
+	if
+	choose
+	forEach
+	out
+
+
+-------------lets work on our Associate.jsp--------------------
+
+to display a table of all associates
+
+instead of creating an object of assoicate dao in scriplet, 
+we can create using JSP action tag
+<jsp:useBean id="adao" class="com.mphasis.hrms.model.AssociateDaoImpl" />
+
+
+----------------------------------------
+whenever a file input control is added to the form,
+	remember the form method should be post only
+
+		<form method="POST" action="associate" enctype="multipart/form-data">
+
+
+@MultipartConfig in servlet
+
+to display image from a byte array,
+	we need to convert the byte array into base 64 encoded string
+	<img src= that string
+
